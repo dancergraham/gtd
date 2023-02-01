@@ -12,13 +12,39 @@ impl Task {
     }
 }
 
+
 fn main() {
-    let tasks = vec![Task::new("Todo: Write a todo app!"),
-                     Task::new("Accept user input"),
-                     Task::new("Allow tasks to be marked complete"),
-                     Task::new("Save DB"),
-                     Task::new("Add Gui"),
-    ];
-    for task in tasks { if !task.complete { println!("⬛{}", task.description) } }
-    ;
+    use std::io;
+    let mut tasks = vec![];
+    tasks.push(Task::new("Todo: Write a todo app!"));
+    tasks.push(Task::new("Write tests"));
+    tasks.push(Task::new("Accept user input"));
+    tasks.push(Task::new("Allow tasks to be marked complete"));
+    tasks.push(Task::new("Save DB"));
+    tasks.push(Task::new("Add Gui"));
+    loop {
+        for (i, task) in tasks.iter().enumerate() { if !task.complete { println!("{}⬛{}", i, task.description) } }
+        println!("\nadd, finish or exit");
+        let mut input = String::new();
+        match io::stdin().read_line(&mut input) {
+            Ok(_n) => {
+                input = String::from(input.trim_end());
+                if input == "exit" { break; } else if input == "finish" {
+                    match io::stdin().read_line(&mut input) {
+                        Ok(_n) => {
+                            let i = input.parse::<usize>().expect("give me an integer");
+                            if let Some(t) = tasks.get_mut(i) {
+                                t.complete = true
+                            }
+                        }
+                        Err(e) => println!("{e}")
+                    }
+                } else {
+                    tasks.push(Task::new(&input))
+                }
+                ;
+            }
+            Err(e) => println!("{e}")
+        }
+    }
 }
