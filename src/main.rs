@@ -30,8 +30,10 @@ fn main() {
             Ok(_n) => {
                 input = String::from(input.trim_end());
                 if input == "exit" { break; } else if input == "finish" {
+                    input.clear();
                     match io::stdin().read_line(&mut input) {
                         Ok(_n) => {
+                            input = String::from(input.trim());
                             let i = input.parse::<usize>().expect("give me an integer");
                             if let Some(t) = tasks.get_mut(i) {
                                 t.complete = true
