@@ -49,11 +49,7 @@ fn main() {
     let tasks = read_db();
     match tasks {
         Ok(mut tasks) => loop {
-            for (i, task) in tasks.iter().enumerate() {
-                if !task.complete {
-                    println!("{}⬛{}", i, task.description)
-                }
-            }
+            display_tasks(&tasks);
             println!("\nadd task, finish or (save and) exit");
             let mut input = String::new();
             match io::stdin().read_line(&mut input) {
@@ -75,13 +71,23 @@ fn main() {
                             Err(e) => println!("{e}"),
                         }
                     } else {
-                        tasks.push(Task::new(&input))
+                        tasks.push(Task::new(&input));
+                        save_db(&tasks)
                     };
                 }
                 Err(e) => println!("{e}"),
             }
         },
         Err(e) => println!("Error reading db {e}"),
+    }
+}
+
+fn display_tasks(tasks: &[Task]) {
+    print!("{}[2J", 27 as char);
+    for (i, task) in tasks.iter().enumerate() {
+        if !task.complete {
+            println!("{}⬛{}", i, task.description)
+        }
     }
 }
 
