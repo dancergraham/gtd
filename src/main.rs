@@ -1,3 +1,8 @@
+#![warn(missing_docs)]
+//! Todo app
+//!
+//!  Simple todo opp to help me learn Rust 🦀
+
 use std::error::Error;
 use std::fs::create_dir_all;
 use std::path::Path;
@@ -5,13 +10,16 @@ use std::path::Path;
 use serde::Deserialize;
 use serde::Serialize;
 
+/// Represents a task to be done
 #[derive(Serialize, Deserialize)]
 struct Task {
     description: String,
     complete: bool,
 }
 
+
 impl Task {
+    /// Constructor. Tasks are incomplete on initialisation
     fn new(description: &str) -> Self {
         Self {
             description: String::from(description),
@@ -20,6 +28,7 @@ impl Task {
     }
 }
 
+/// Read tasks from the csv file database
 fn read_db() -> Result<Vec<Task>, Box<dyn Error>> {
     use csv::Reader;
     let data_path = Path::new("./data/tasks.csv");
@@ -31,6 +40,9 @@ fn read_db() -> Result<Vec<Task>, Box<dyn Error>> {
     Ok(data)
 }
 
+/// Write all tasks back to the csv file database
+///
+/// Creates the db file if necessary
 fn write_db(data: &[Task]) -> Result<(), Box<dyn Error>> {
     use csv::Writer;
     let data_dir = Path::new("./data");
@@ -82,6 +94,7 @@ fn main() {
     }
 }
 
+/// Print any incomplete tasks to the console
 fn display_tasks(tasks: &[Task]) {
     print!("{}[2J", 27 as char);
     for (i, task) in tasks.iter().enumerate() {
@@ -91,6 +104,7 @@ fn display_tasks(tasks: &[Task]) {
     }
 }
 
+/// Attempt to save the database and report on success
 fn save_db(tasks: &[Task]) {
     let saved = write_db(tasks);
     match saved {
