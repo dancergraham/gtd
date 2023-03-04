@@ -3,24 +3,25 @@
 //!
 //!  Simple todo opp to help me learn Rust 🦀
 
-use std::error::Error;
-use std::fs::create_dir_all;
-use std::path::Path;
-
 use serde::Deserialize;
 use serde::Serialize;
+use std::error::Error;
 
 /// Represents a task to be done
 #[derive(Serialize, Deserialize)]
-struct Task {
+pub struct Task {
     description: String,
     complete: bool,
 }
 
-
 impl Task {
     /// Constructor. Tasks are incomplete on initialisation
-    fn new(description: &str) -> Self {
+    ///
+    /// ```
+    /// # use gtd:Task
+    /// let task = Task::new("Do something");
+    /// ```
+    pub fn new(description: &str) -> Self {
         Self {
             description: String::from(description),
             complete: false,
@@ -29,15 +30,26 @@ impl Task {
 }
 
 /// Read tasks from the csv file database
-fn read_db() -> Result<Vec<Task>, Box<dyn Error>> {
+fn read_db() -> Vec<Task> {
     use csv::Reader;
-    let data_path = Path::new("./data/tasks.csv");
-    let mut data = vec![];
-    let mut reader = Reader::from_path(data_path)?;
-    for result in reader.deserialize() {
-        data.push(result?)
+    use directories::ProjectDirs;
+    let base_dirs = ProjectDirs::from("gtd", "dancergraham", "todo").expect("it will be fine");
+    let data_path = base_dirs.data_dir();
+    let file_path = data_path.join("tasks.csv");
+
+    let mut data = Vec::new();
+    if file_path.exists() {
+        let reader = Reader::from_path(file_path);
+        match reader {
+            Ok(mut reader) => {
+                for result in reader.deserialize() {
+                    data.push(result.expect("it's fine"))
+                }
+            }
+            Err(_e) => {}
+        }
     }
-    Ok(data)
+    data
 }
 
 /// Write all tasks back to the csv file database
@@ -45,10 +57,16 @@ fn read_db() -> Result<Vec<Task>, Box<dyn Error>> {
 /// Creates the db file if necessary
 fn write_db(data: &[Task]) -> Result<(), Box<dyn Error>> {
     use csv::Writer;
-    let data_dir = Path::new("./data");
-    let data_path = Path::new("./data/tasks.csv");
-    create_dir_all(data_dir)?;
-    let mut wtr = Writer::from_path(data_path)?;
+    use directories::ProjectDirs;
+    let base_dirs = ProjectDirs::from("gtd", "dancergraham", "todo").expect("it will be fine");
+    let data_path = base_dirs.data_dir();
+    if !data_path.exists() {
+        use std::fs;
+
+        fs::create_dir_all(data_path)?;
+    }
+    let file_path = data_path.join("tasks.csv");
+    let mut wtr = Writer::from_path(file_path)?;
     for datum in data {
         wtr.serialize(datum)?;
     }
@@ -58,39 +76,38 @@ fn write_db(data: &[Task]) -> Result<(), Box<dyn Error>> {
 
 fn main() {
     use std::io;
-    let tasks = read_db();
-    match tasks {
-        Ok(mut tasks) => loop {
-            display_tasks(&tasks);
-            println!("\nadd task, finish or (save and) exit");
-            let mut input = String::new();
-            match io::stdin().read_line(&mut input) {
-                Ok(_n) => {
-                    input = String::from(input.trim_end());
-                    if input == "exit" {
-                        save_db(&tasks);
-                        break;
-                    } else if input == "finish" {
-                        input.clear();
-                        match io::stdin().read_line(&mut input) {
-                            Ok(_n) => {
-                                input = String::from(input.trim());
-                                let i = input.parse::<usize>().expect("give me an integer");
-                                if let Some(t) = tasks.get_mut(i) {
-                                    t.complete = true
-                                }
+    let mut tasks = read_db();
+    loop {
+        display_tasks(&tasks);
+        println!("\nadd task, finish or (save and) exit");
+        let mut input = String::new();
+        match io::stdin().read_line(&mut input) {
+            Ok(_n) => {
+                input = String::from(input.trim_end());
+                if input == "exit" {
+                    save_db(&tasks);
+                    break;
+                } else if input == "finish" {
+                    input.clear();
+                    match io::stdin().read_line(&mut input) {
+                        Ok(_n) => {
+                            input = String::from(input.trim());
+                            let i = input.parse::<usize>().expect("give me an integer");
+                            if let Some(t) = tasks.get_mut(i) {
+                                t.complete = true
                             }
-                            Err(e) => println!("{e}"),
                         }
-                    } else {
-                        tasks.push(Task::new(&input));
-                        save_db(&tasks)
-                    };
-                }
-                Err(e) => println!("{e}"),
+                        Err(e) => println!("{e}"),
+                    }
+                } else {
+                    tasks.push(Task::new(&input));
+                    save_db(&tasks)
+                };
             }
-        },
-        Err(e) => println!("Error reading db {e}"),
+            Err(e) => {
+                println!("{e}")
+            }
+        }
     }
 }
 
