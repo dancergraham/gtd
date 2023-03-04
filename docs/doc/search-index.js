@@ -1,0 +1,5 @@
+var searchIndex = JSON.parse('{\
+"gtd":{"doc":"Todo app","t":[3,11,11,12,12,11,5,11,11,5,11,5,5,11,11,11,11,5],"n":["Task","borrow","borrow_mut","complete","description","deserialize","display_tasks","from","into","main","new","read_db","save_db","serialize","try_from","try_into","type_id","write_db"],"q":["gtd","","","","","","","","","","","","","","","","",""],"d":["Represents a task to be done","","","","","","Print any incomplete tasks to the console","Returns the argument unchanged.","Calls <code>U::from(self)</code>.","","Constructor. Tasks are incomplete on initialisation","Read tasks from the csv file database","Attempt to save the database and report on success","","","","","Write all tasks back to the csv file database"],"i":[0,1,1,1,1,1,0,1,1,0,1,0,0,1,1,1,1,0],"f":[0,[[]],[[]],0,0,[[],[[2,[1]]]],[[]],[[]],[[]],[[]],[3,1],[[],[[4,[1]]]],[[]],[1,2],[[],2],[[],2],[[],5],[[],[[2,[[7,[6]]]]]]],"p":[[3,"Task"],[4,"Result"],[15,"str"],[3,"Vec"],[3,"TypeId"],[8,"Error"],[3,"Box"]]}\
+}');
+if (typeof window !== 'undefined' && window.initSearch) {window.initSearch(searchIndex)};
+if (typeof exports !== 'undefined') {exports.searchIndex = searchIndex};
