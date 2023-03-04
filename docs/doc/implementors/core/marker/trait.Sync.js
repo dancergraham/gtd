@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"gtd":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.67.0/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> for <a class=\"struct\" href=\"gtd/struct.Task.html\" title=\"struct gtd::Task\">Task</a>",1,["gtd::Task"]]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
